@@ -35,11 +35,22 @@ def signup():
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
-    email = request.form.get('email')
+
     name = request.form.get('name')
     password = request.form.get('password')
 
-    user = db.session.execute(text('select * from user where email = "' + email +'"')).all()
+    # Get email from form input (Flask syntax)
+    email = request.form.get('email')
+
+    # Create connection (adjust based on your DB)
+    connection = sqlite3.connect("your_database.db")
+
+    query = 'SELECT * FROM user WHERE email = ?'
+    cursor = connection.cursor()
+    cursor.execute(query, (email,))
+
+    user = cursor.fetchall()
+
     if len(user) > 0: # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')  # 'flash' function stores a message accessible in the template code.
         app.logger.debug("User email already exists")
